@@ -48,6 +48,10 @@ constexpr float RADIO_MAX_DISTANCE = 35.0f;
 // The Lua slider is intentionally calibrated so 1% is the normal radio
 // level. Do not apply a second 1% attenuation here.
 constexpr float RADIO_OUTPUT_GAIN = 1.0f;
+// Scrap Mechanic can briefly suspend interactable fixed updates while a world
+// finishes loading or the window loses focus. Three seconds was too short and
+// could kill a healthy channel; explicit Lua stop still releases it instantly.
+constexpr long long RADIO_STALE_TIMEOUT_SECONDS = 30;
 
 using FmodSystem = void;
 using FmodSound = void;
@@ -769,7 +773,8 @@ void ProcessRadio(const std::shared_ptr<RadioState>& radio) {
         std::lock_guard<std::mutex> lock(g_mutex);
         radio->resolving = false;
         const auto lastUpdateAge = std::chrono::steady_clock::now() - radio->lastUpdate;
-        const bool staleRadio = std::chrono::duration_cast<std::chrono::seconds>(lastUpdateAge).count() > 3;
+        const bool staleRadio = std::chrono::duration_cast<std::chrono::seconds>(lastUpdateAge).count()
+            > RADIO_STALE_TIMEOUT_SECONDS;
         if (radio->url != url || radio->generation != generation || !radio->playing || staleRadio) {
             if (IsLocalAudioPath(directUrl) && !directUrl.empty()) DeleteFileA(directUrl.c_str());
             return;
@@ -888,10 +893,12 @@ void AudioThread() {
             const auto now = std::chrono::steady_clock::now();
             for (auto it = g_radios.begin(); it != g_radios.end();) {
                 const auto age = std::chrono::duration_cast<std::chrono::seconds>(now - it->second->lastUpdate).count();
-                if (age > 3) {
+                if (age > RADIO_STALE_TIMEOUT_SECONDS) {
                     // A Lua userdata that stops sending updates belongs to an
                     // unloaded world. Release it so its channel cannot keep
                     // playing alongside the next world's radio.
+                    Log("stale radio removed radio=%p age=%lld url=%s", it->second->key,
+                        static_cast<long long>(age), it->second->url.substr(0, 180).c_str());
                     ReleaseAudio(it->second);
                     it = g_radios.erase(it);
                     continue;

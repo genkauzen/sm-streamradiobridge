@@ -348,8 +348,12 @@ function StreamBoombox.sv_removeCurrent(self)
     self:sv_sync()
 end
 
-function StreamBoombox.sv_audioReady(self, current, url)
-    current = tonumber(current)
+function StreamBoombox.sv_audioReady(self, value)
+    if type(value) ~= "table" then
+        return
+    end
+    local current = tonumber(value.current)
+    local url = type(value.url) == "string" and value.url or nil
     local track = self:sv_currentTrack()
     if not self.sv.playing or not track or current ~= self.sv.current or track.url ~= url then
         return
@@ -583,8 +587,22 @@ function StreamBoombox:cl_bridgeTick()
             local wasReady = self.cl.audioReady
             self.cl.audioReady = result.status == "Играет audio-only"
             if self.cl.audioReady and not wasReady and self.cl.readyUrl ~= payload.url then
-                self.cl.readyUrl = payload.url
-                self.network:sendToServer("sv_audioReady", self.cl.current, payload.url)
+                -- Scrap Mechanic accepts one payload argument after the RPC
+                -- name. Sending current and URL separately aborts this fixed
+                -- update callback, which made the native channel go stale
+                -- exactly three seconds after playback began.
+                local ready = {
+                    current = self.cl.current,
+                    url = payload.url
+                }
+                local sent = pcall(function()
+                    self.network:sendToServer("sv_audioReady", ready)
+                end)
+                if sent then
+                    self.cl.readyUrl = payload.url
+                else
+                    self.cl.bridgeStatus = "Ошибка синхронизации audioReady"
+                end
             elseif not self.cl.audioReady and result.status ~= "Играет audio-only" then
                 self.cl.readyUrl = nil
             end

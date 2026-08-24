@@ -1,7 +1,7 @@
 {
-  "version": "1.0.5-build7",
+  "version": "1.0.5-build8",
   "downloadUrl": "https://github.com/genkauzen/sm-streamradiobridge/releases/latest/download/StreamRadio_1.0.5.zip",
   "sha256": "",
   "repository": "https://github.com/genkauzen/sm-streamradiobridge",
-  "notes": "Fixed preview artwork and audio calibration; launcher waits for Scrap Mechanic and reports DLL injection errors, including paths with spaces."
+  "notes": "Fixed the audioReady RPC crash that stopped playback after three seconds and made stale-channel cleanup tolerant of short update pauses."
 }
