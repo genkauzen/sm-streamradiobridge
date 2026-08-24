@@ -30,7 +30,7 @@ if not exist "%FFMPEG%" (
 )
 
 echo Starting Scrap Mechanic through Steam...
-echo The bridge will wait up to 60 seconds and inject automatically.
+echo The bridge will wait up to 120 seconds and inject automatically.
 echo Run this BAT on every player PC that should hear Stream Radio.
 echo.
 

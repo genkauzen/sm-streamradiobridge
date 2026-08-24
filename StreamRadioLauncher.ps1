@@ -175,7 +175,8 @@ function Start-GameAndBridge {
     $dll = Join-Path $BridgeDir 'StreamRadioBridge.dll'
     $injector = Join-Path $BridgeDir 'StreamRadioBridgeInject.exe'
     if (-not (Test-Path $dll) -or -not (Test-Path $injector)) { throw 'Не найден DLL или инжектор bridge.' }
-    if (-not (Get-Process -Name ScrapMechanic -ErrorAction SilentlyContinue)) {
+    $game = Get-Process -Name ScrapMechanic -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $game) {
         $steam = Get-SteamExe
         if ($steam) {
             Start-Process -FilePath $steam -ArgumentList '-applaunch 387990'
@@ -184,9 +185,46 @@ function Start-GameAndBridge {
             Start-Process 'steam://rungameid/387990'
             Write-Log 'Steam.exe не найден в реестре; запущен Steam URI.'
         }
-    } else { Write-Log 'Scrap Mechanic уже запущен.' }
-    Write-Log 'Инжектор ожидает окно игры и подключит bridge...'
-    Start-Process -FilePath $injector -ArgumentList ('"{0}"' -f $dll) -WorkingDirectory $BridgeDir
+        Write-Log 'Жду процесс ScrapMechanic.exe (до 120 секунд)...'
+        for ($second = 1; $second -le 120; $second++) {
+            Start-Sleep -Seconds 1
+            $game = Get-Process -Name ScrapMechanic -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($game) { break }
+            if (($second % 10) -eq 0) { Write-Log "Игра ещё запускается... $second/120 сек." }
+        }
+    } else {
+        Write-Log "Scrap Mechanic уже запущен (PID $($game.Id))."
+    }
+    if (-not $game) {
+        throw 'ScrapMechanic.exe не появился за 120 секунд. Запустите игру через Steam и повторите START.'
+    }
+    $gamePath = $null
+    try { $gamePath = $game.Path } catch { }
+    if ($gamePath) { Write-Log "Игра найдена: PID $($game.Id), $gamePath" }
+    Write-Log 'Запускаю инжектор и жду его результат...'
+    $tempBase = Join-Path ([IO.Path]::GetTempPath()) ('StreamRadioInjector_' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $tempBase -Force | Out-Null
+    $stdout = Join-Path $tempBase 'stdout.log'
+    $stderr = Join-Path $tempBase 'stderr.log'
+    try {
+        $injectProcess = Start-Process -FilePath $injector -ArgumentList @($dll) -WorkingDirectory $BridgeDir `
+            -PassThru -Wait -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+        foreach ($line in @(Get-Content -LiteralPath $stdout -ErrorAction SilentlyContinue)) {
+            if ($line.Trim()) { Write-Log "Инжектор: $line" }
+        }
+        foreach ($line in @(Get-Content -LiteralPath $stderr -ErrorAction SilentlyContinue)) {
+            if ($line.Trim()) { Write-Log "Инжектор ERROR: $line" -IsError }
+        }
+        switch ($injectProcess.ExitCode) {
+            0 { Write-Log 'Bridge успешно подключён к игре.' }
+            2 { throw 'Инжектор не нашёл ScrapMechanic.exe. Игра могла закрыться во время запуска.' }
+            3 { throw 'Инжекция DLL не удалась. Запустите лаунчер от имени администратора и проверьте антивирус.' }
+            4 { throw 'В игре уже загружен другой StreamRadioBridge. Полностью закройте Scrap Mechanic и запустите START заново.' }
+            default { throw "Инжектор завершился с кодом $($injectProcess.ExitCode)." }
+        }
+    } finally {
+        if (Test-Path -LiteralPath $tempBase) { Remove-Item -LiteralPath $tempBase -Recurse -Force -ErrorAction SilentlyContinue }
+    }
 }
 
 # Load persisted settings before the optional headless check and GUI.

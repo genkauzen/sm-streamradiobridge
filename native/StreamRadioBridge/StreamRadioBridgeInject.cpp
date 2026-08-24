@@ -14,7 +14,12 @@ static DWORD FindGame() {
     DWORD result = 0;
     if (Process32FirstW(snapshot, &entry)) {
         do {
-            if (_wcsicmp(entry.szExeFile, L"ScrapMechanic.exe") == 0) {
+            // Steam normally launches ScrapMechanic.exe. Keep the comparison
+            // case-insensitive and tolerate a missing .exe suffix in case a
+            // launcher reports the image name without it.
+            std::wstring image(entry.szExeFile);
+            if (_wcsicmp(image.c_str(), L"ScrapMechanic.exe") == 0 ||
+                _wcsicmp(image.c_str(), L"ScrapMechanic") == 0) {
                 result = entry.th32ProcessID;
                 break;
             }
@@ -105,9 +110,14 @@ int wmain(int argc, wchar_t** argv) {
     wprintf(L"DLL: %ls\n", dll.c_str());
 
     DWORD pid = 0;
-    for (int i = 0; i < 60 && !pid; ++i) {
+    for (int i = 0; i < 120 && !pid; ++i) {
         pid = FindGame();
-        if (!pid) Sleep(1000);
+        if (!pid) {
+            if ((i + 1) % 10 == 0) {
+                wprintf(L"Still waiting for ScrapMechanic.exe... %d/120 seconds\n", i + 1);
+            }
+            Sleep(1000);
+        }
     }
     if (!pid) {
         wprintf(L"ScrapMechanic.exe was not found. Start the game first.\n");

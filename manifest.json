@@ -1,7 +1,7 @@
 {
-  "version": "1.0.5-build5",
+  "version": "1.0.5-build6",
   "downloadUrl": "https://github.com/genkauzen/sm-streamradiobridge/releases/latest/download/StreamRadio_1.0.5.zip",
   "sha256": "",
   "repository": "https://github.com/genkauzen/sm-streamradiobridge",
-  "notes": "Fixed preview artwork, restored 1% volume calibration and repaired the audio range regression."
+  "notes": "Fixed preview artwork and audio calibration; launcher now waits for Scrap Mechanic and reports DLL injection errors."
 }
