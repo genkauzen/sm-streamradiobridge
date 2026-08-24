@@ -13,6 +13,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Pack distributable
         shell: pwsh
         run: Compress-Archive -Path dist\* -DestinationPath StreamRadio_1.0.5.zip -Force
