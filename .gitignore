@@ -1,0 +1,19 @@
+# Runtime/debug output
+*.log
+native/StreamRadioBridge/bin/probe_*
+native/StreamRadioBridge/bin/FmodStreamProbe.exe
+native/StreamRadioBridge/bin/StreamRadioBridge_v*.dll
+
+# Keep release binaries in dist/, not compiler output copies.
+native/StreamRadioBridge/bin/*
+!native/StreamRadioBridge/bin/StreamRadioBridge.dll
+!native/StreamRadioBridge/bin/StreamRadioBridgeInject.exe
+!native/StreamRadioBridge/bin/yt-dlp.exe
+!native/StreamRadioBridge/bin/ffmpeg.exe
+!native/StreamRadioBridge/bin/*LICENSE.txt
+
+# Local launcher settings
+launcher.json
+
+# Release archives are uploaded as GitHub Release assets, not committed blobs.
+*.zip

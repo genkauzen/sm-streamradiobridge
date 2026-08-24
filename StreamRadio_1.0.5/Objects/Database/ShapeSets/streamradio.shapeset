@@ -1,0 +1,70 @@
+{
+  "partList": [
+    {
+      "box": { "x": 2, "y": 2, "z": 1 },
+      "color": "df7f01",
+      "flammable": false,
+      "legacyId": 112,
+      "name": "obj_interactive_radio",
+      "physicsMaterial": "Electronics",
+      "ratings": {
+        "buoyancy": 6,
+        "density": 2,
+        "durability": 3,
+        "friction": 5
+      },
+      "renderable": "$GAME_DATA/Objects/Renderable/Interactive/obj_interactive_radio.rend",
+      "rotationSet": "PropYZ",
+      "scripted": {
+        "classname": "StreamBoombox",
+        "filename": "$CONTENT_DATA/Scripts/game/interactables/StreamBoombox.lua"
+      },
+      "showInInventory": true,
+      "uuid": "dfefc9d7-db03-4d25-ad85-eae1d824d8c0"
+    },
+    {
+      "box": { "x": 7, "y": 3, "z": 3 },
+      "color": "170dcaff",
+      "flammable": true,
+      "name": "obj_interactive_boombox",
+      "physicsMaterial": "Electronics",
+      "ratings": {
+        "buoyancy": 2,
+        "density": 2,
+        "durability": 3,
+        "friction": 3
+      },
+      "renderable": "$SURVIVAL_DATA/Objects/Renderable/interactive/obj_interactive_boombox.rend",
+      "rotationSet": "PropY",
+      "scripted": {
+        "classname": "StreamBoombox",
+        "filename": "$CONTENT_DATA/Scripts/game/interactables/StreamBoombox.lua"
+      },
+      "showInInventory": true,
+      "stackSize": 1,
+      "uuid": "03bdd942-c808-4795-aa0b-554fa98c3c74"
+    },
+    {
+      "box": { "x": 7, "y": 3, "z": 3 },
+      "color": "170dcaff",
+      "flammable": true,
+      "name": "obj_stream_radio_boombox",
+      "physicsMaterial": "Electronics",
+      "ratings": {
+        "buoyancy": 2,
+        "density": 2,
+        "durability": 3,
+        "friction": 3
+      },
+      "renderable": "$SURVIVAL_DATA/Objects/Renderable/interactive/obj_interactive_boombox.rend",
+      "rotationSet": "PropY",
+      "scripted": {
+        "classname": "StreamBoombox",
+        "filename": "$CONTENT_DATA/Scripts/game/interactables/StreamBoombox.lua"
+      },
+      "showInInventory": true,
+      "stackSize": 1,
+      "uuid": "b5f5f9b9-bb1a-4d4e-a6a4-14a2b9e2d5d0"
+    }
+  ]
+}

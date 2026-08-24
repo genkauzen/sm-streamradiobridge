@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<MyGUI type="Layout" version="3.2.0">
+  <Widget type="Widget" skin="BackgroundInteractableWide" name="BackPanel" position_real="0.08 0.08 0.84 0.84">
+    <Property key="NeedKey" value="false" />
+    <Property key="NeedMouse" value="true" />
+
+    <Widget type="TextBox" skin="TextBox" name="Title" position_real="0.04 0.025 0.92 0.075">
+      <Property key="Caption" value="STREAM RADIO" />
+      <Property key="FontName" value="SM_HeaderLarge_Wide" />
+      <Property key="TextAlign" value="Center" />
+    </Widget>
+    <Widget type="Button" skin="ToggleButton" name="RadioTabButton" position_real="0.04 0.105 0.25 0.055">
+      <Property key="Caption" value="РАДИО" />
+      <Property key="FontName" value="SM_Button" />
+      <Property key="TextAlign" value="Center" />
+    </Widget>
+    <Widget type="Button" skin="ToggleButton" name="BridgeTabButton" position_real="0.31 0.105 0.25 0.055">
+      <Property key="Caption" value="BRIDGE" />
+      <Property key="FontName" value="SM_Button" />
+      <Property key="TextAlign" value="Center" />
+    </Widget>
+    <Widget type="Widget" skin="PanelEmpty" name="PreviewPanel" position_real="0.04 0.18 0.24 0.36">
+      <Widget type="ImageBox" skin="ImageBox" name="PreviewImage" position_real="0.08 0.07 0.84 0.66">
+        <Property key="NeedKey" value="false" />
+        <Property key="NeedMouse" value="false" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="PreviewPlaceholder" position_real="0.08 0.76 0.84 0.18">
+        <Property key="Caption" value="ПРЕВЬЮ НЕДОСТУПНО\nАУДИО-РЕЖИМ" />
+        <Property key="TextAlign" value="Center" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextColour" value="0.92 0.92 0.92" />
+      </Widget>
+    </Widget>
+
+    <Widget type="Widget" skin="PanelEmpty" name="InfoPanel" position_real="0.31 0.18 0.55 0.36">
+      <Widget type="TextBox" skin="TextBox" name="TrackTitle" position_real="0.04 0.02 0.92 0.16">
+        <Property key="Caption" value="Нет трека" />
+        <Property key="FontName" value="SM_HeaderLarge_Medium" />
+        <Property key="TextAlign" value="Left VCenter" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="UrlHint" position_real="0.04 0.19 0.92 0.07">
+        <Property key="Caption" value="ССЫЛКА НА ТРЕК / ВИДЕО" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Left VCenter" />
+        <Property key="TextColour" value="0.78 0.78 0.78" />
+      </Widget>
+      <Widget type="Widget" skin="SearchBarBackground" name="UrlBar" position_real="0.04 0.27 0.82 0.18">
+        <Widget type="EditBox" skin="EditBoxEmpty" name="UrlInput" position_real="0.025 0.1 0.95 0.8">
+          <Property key="Caption" value="Вставьте ссылку YouTube / TikTok / VK" />
+          <Property key="TextAlign" value="Left VCenter" />
+          <Property key="TextColour" value="0.99 0.99 0.99" />
+          <Property key="MultiLine" value="false" />
+          <Property key="FontName" value="SM_Text" />
+        </Widget>
+      </Widget>
+      <Widget type="Button" skin="PrimaryButton" name="LoadButton" position_real="0.04 0.51 0.38 0.2">
+        <Property key="Caption" value="ДОБАВИТЬ И ИГРАТЬ" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="Button" skin="SecondaryButton" name="QueueButton" position_real="0.46 0.51 0.38 0.2">
+        <Property key="Caption" value="В ОЧЕРЕДЬ" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="Status" position_real="0.04 0.73 0.84 0.11">
+        <Property key="Caption" value="" />
+        <Property key="TextAlign" value="Left VCenter" />
+        <Property key="FontName" value="SM_Text" />
+        <Property key="TextColour" value="0.92 0.92 0.92" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="PositionLabel" position_real="0.04 0.86 0.82 0.08">
+        <Property key="Caption" value="00:00 / --:--" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Left VCenter" />
+        <Property key="TextColour" value="0.78 0.78 0.78" />
+      </Widget>
+      <Widget type="ScrollBar" skin="LargeHorizontalSliderBackground" name="SeekSlider" position_real="0.04 0.93 0.82 0.07" />
+    </Widget>
+
+    <Widget type="Widget" skin="PanelEmpty" name="BridgePanel" position_real="0.04 0.18 0.82 0.60">
+      <Property key="Visible" value="false" />
+      <Widget type="TextBox" skin="TextBox" name="BridgeTitle" position_real="0.04 0.04 0.92 0.12">
+        <Property key="Caption" value="STREAMBRIDGE / СОЕДИНЕНИЕ" />
+        <Property key="FontName" value="SM_HeaderLarge_Medium" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="BridgeDescription" position_real="0.08 0.20 0.84 0.14">
+        <Property key="Caption" value="Переподключение освобождает audio-каналы и запускает разрешение ссылок заново." />
+        <Property key="FontName" value="SM_Text" />
+        <Property key="TextAlign" value="Center VCenter" />
+        <Property key="TextColour" value="0.78 0.78 0.78" />
+      </Widget>
+      <Widget type="Button" skin="PrimaryButton" name="BridgeReconnectButton" position_real="0.08 0.42 0.38 0.16">
+        <Property key="Caption" value="ПЕРЕПОДКЛЮЧИТЬ" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="Button" skin="SecondaryButton" name="BridgeReloadButton" position_real="0.54 0.42 0.38 0.16">
+        <Property key="Caption" value="СБРОСИТЬ AUDIO" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="BridgeStatus" position_real="0.08 0.67 0.84 0.16">
+        <Property key="Caption" value="Проверка StreamRadioBridge..." />
+        <Property key="FontName" value="SM_Text" />
+        <Property key="TextAlign" value="Center VCenter" />
+        <Property key="TextColour" value="0.92 0.92 0.92" />
+      </Widget>
+    </Widget>
+
+    <Widget type="Widget" skin="PanelEmpty" name="TransportPanel" position_real="0.04 0.60 0.55 0.2">
+      <Widget type="Button" skin="SettingsButton" name="PreviousButton" position_real="0.00 0.22 0.12 0.58">
+        <Property key="Caption" value="|&lt;" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="Button" skin="PrimaryButton" name="PlayButton" position_real="0.14 0.22 0.22 0.58">
+        <Property key="Caption" value="PLAY" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="Button" skin="SettingsButton" name="StopButton" position_real="0.39 0.22 0.16 0.58">
+        <Property key="Caption" value="STOP" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="Button" skin="SettingsButton" name="NextButton" position_real="0.57 0.22 0.12 0.58">
+        <Property key="Caption" value="&gt;|" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" name="LoopState" position_real="0.70 0.02 0.14 0.15">
+        <Property key="Caption" value="LOOP: ВЫКЛ" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Center" />
+        <Property key="TextColour" value="0.78 0.78 0.78" />
+      </Widget>
+      <Widget type="Button" skin="ToggleButton" name="LoopButton" position_real="0.72 0.22 0.10 0.58">
+        <Property key="Caption" value="LOOP" />
+        <Property key="FontName" value="SM_Button" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="Button" skin="SettingsButton" name="RemoveButton" position_real="0.85 0.22 0.14 0.58">
+        <Property key="Caption" value="УДАЛИТЬ" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+    </Widget>
+
+    <Widget type="Widget" skin="PanelEmpty" name="VolumePanel" position_real="0.61 0.60 0.28 0.2">
+      <Widget type="TextBox" skin="TextBox" name="VolumeLabel" position_real="0.05 0.05 0.9 0.26">
+        <Property key="Caption" value="ГРОМКОСТЬ" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Center" />
+      </Widget>
+      <Widget type="ScrollBar" skin="LargeHorizontalSliderBackground" name="VolumeSlider" position_real="0.08 0.46 0.84 0.35" />
+      <Widget type="TextBox" skin="TextBox" name="VolumeHint" position_real="0.05 0.78 0.9 0.17">
+        <Property key="Caption" value="ЛОКАЛЬНО ДЛЯ ИГРОКА" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Center" />
+        <Property key="TextColour" value="0.78 0.78 0.78" />
+      </Widget>
+    </Widget>
+
+    <Widget type="TextBox" skin="TextBox" name="Footer" position_real="0.04 0.84 0.53 0.07">
+      <Property key="Caption" value="Подключите радио к сиденью для быстрого доступа" />
+      <Property key="FontName" value="SM_TabSmall" />
+      <Property key="TextAlign" value="Left VCenter" />
+      <Property key="TextColour" value="0.78 0.78 0.78" />
+    </Widget>
+    <Widget type="Button" skin="SecondaryButton" name="CloseButton" position_real="0.62 0.83 0.27 0.08">
+      <Property key="Caption" value="ЗАКРЫТЬ" />
+      <Property key="FontName" value="SM_Button" />
+      <Property key="TextAlign" value="Center" />
+    </Widget>
+  </Widget>
+  <CodeGeneratorSettings />
+</MyGUI>

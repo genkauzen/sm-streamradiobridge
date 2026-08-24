@@ -1,0 +1,23 @@
+name: Stream Radio release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pack distributable
+        shell: pwsh
+        run: Compress-Archive -Path dist\* -DestinationPath StreamRadio_1.0.5.zip -Force
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: StreamRadio_1.0.5.zip
+          generate_release_notes: true

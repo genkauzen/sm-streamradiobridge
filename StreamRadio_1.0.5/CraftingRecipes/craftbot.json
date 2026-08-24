@@ -1,0 +1,13 @@
+[
+  {
+    "itemId": "b5f5f9b9-bb1a-4d4e-a6a4-14a2b9e2d5d0",
+    "quantity": 1,
+    "craftTime": 30,
+    "ingredientList": [
+      { "quantity": 5, "itemId": "8aedf6c2-94e1-4506-89d4-a0227c552f1e" },
+      { "quantity": 2, "itemId": "910a7f2c-52b0-46eb-8873-ad13255539af" },
+      { "quantity": 4, "itemId": "f152e4df-bc40-44fb-8d20-3b3ff70cdfe3" },
+      { "quantity": 1, "itemId": "36335664-6e61-4d44-9876-54f9660a8565" }
+    ]
+  }
+]
