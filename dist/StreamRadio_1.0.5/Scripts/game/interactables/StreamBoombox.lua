@@ -381,7 +381,9 @@ function StreamBoombox.client_onCreate(self)
         position = 0,
         loop = false,
         shuffle = false,
-        volume = 1,
+        -- Scrap Mechanic's native radio level is reached at the first slider
+        -- percent; higher values remain available for louder vehicles.
+        volume = 0.01,
         urlInput = "",
         editing = false,
         wasSeatButtonActive = false,

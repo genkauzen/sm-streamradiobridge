@@ -1,5 +1,5 @@
-version=1.0.5-build4
-Stream Radio Core 1.0.5 bridge build 4
+version=1.0.5-build5
+Stream Radio Core 1.0.5 bridge build 5
 Target game: Scrap Mechanic 1.0.5 (build 876)
 Built: 2026-08-24
 
@@ -11,9 +11,11 @@ Contents:
 
 Known limitation: endless live streams and links requiring login are not guaranteed.
 
-Build 4 fixes:
-- radio-volume calibration at the game's normal level
-- short-range 3D source (12 m), stale-world channel cleanup and no Doppler
+Build 5 fixes:
+- mod list artwork is supplied as the required preview.jpg
+- restored the 1% normal-radio volume calibration
+- restored a usable 35 m audio range after the 12 m regression
+- stale-world channel cleanup and no Doppler
 - server clock waits for the first decoded audio buffer, preventing load skips
 - reconnect/reset controls in the Bridge tab
 - unified PowerShell launcher with Steam/profile detection and GitHub updates

@@ -1,7 +1,7 @@
 {
-  "version": "1.0.5-build4",
+  "version": "1.0.5-build5",
   "downloadUrl": "https://github.com/genkauzen/sm-streamradiobridge/releases/latest/download/StreamRadio_1.0.5.zip",
   "sha256": "",
   "repository": "https://github.com/genkauzen/sm-streamradiobridge",
-  "notes": "Audio gain/3D distance fix, loading clock synchronization, stale-world cleanup, Bridge tab and unified launcher."
+  "notes": "Fixed preview artwork, restored 1% volume calibration and repaired the audio range regression."
 }

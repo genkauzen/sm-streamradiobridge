@@ -42,10 +42,12 @@ constexpr float RADIO_MIN_DISTANCE = 1.5f;
 // Scrap Mechanic's built-in radio is a short-range source.  Keeping the
 // native stream in the same range prevents the old "audible for kilometres"
 // behaviour while still allowing a nearby workshop/vehicle to hear it.
-constexpr float RADIO_MAX_DISTANCE = 12.0f;
+constexpr float RADIO_MAX_DISTANCE = 35.0f;
 // The bridge owns a separate FMOD system, outside Scrap Mechanic's master
 // mixer.  Calibrate its 100% slider position to the game's normal radio level.
-constexpr float RADIO_OUTPUT_GAIN = 0.01f;
+// The Lua slider is intentionally calibrated so 1% is the normal radio
+// level. Do not apply a second 1% attenuation here.
+constexpr float RADIO_OUTPUT_GAIN = 1.0f;
 
 using FmodSystem = void;
 using FmodSound = void;
@@ -829,6 +831,8 @@ void ProcessRadio(const std::shared_ptr<RadioState>& radio) {
             radio->durationMs = duration;
             radio->status = "Играет audio-only";
         }
+        Log("FMOD audio started radio=%p volume=%.3f distance=%.3f", radio->key,
+            volume * RADIO_OUTPUT_GAIN, RADIO_MAX_DISTANCE);
     } else if (radio->channel && g_fmod.channelSet3DAttributes) {
         const Vec3 noVelocity{};
         g_fmod.channelSetVolume(radio->channel, volume * RADIO_OUTPUT_GAIN);
