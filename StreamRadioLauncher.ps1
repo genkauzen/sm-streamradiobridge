@@ -207,7 +207,7 @@ function Start-GameAndBridge {
     $stdout = Join-Path $tempBase 'stdout.log'
     $stderr = Join-Path $tempBase 'stderr.log'
     try {
-        $injectProcess = Start-Process -FilePath $injector -ArgumentList @($dll) -WorkingDirectory $BridgeDir `
+        $injectProcess = Start-Process -FilePath $injector -ArgumentList ('"{0}"' -f $dll) -WorkingDirectory $BridgeDir `
             -PassThru -Wait -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr
         foreach ($line in @(Get-Content -LiteralPath $stdout -ErrorAction SilentlyContinue)) {
             if ($line.Trim()) { Write-Log "Инжектор: $line" }
