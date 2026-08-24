@@ -1,15 +1,17 @@
-version=1.0.5-build8
-Stream Radio Core 1.0.5 bridge build 8
+version=1.0.5-build9
+Stream Radio Core 1.0.5 bridge build 9
 Target game: Scrap Mechanic 1.0.5 (build 876)
 Built: 2026-08-24
 
 Contents:
-- Lua/GUI mod with per-radio synchronized playlist and seat controls
+- progressive audio streaming with synchronized multiplayer transport
+- in-radio YouTube search, thumbnails and persistent per-user volume
+- Lua/GUI mod with per-radio playlist and seat controls
 - native x64 Lua/FMOD bridge and injector
 - yt-dlp 2026.08.19
 - ffmpeg 9.0
 
-Known limitation: endless live streams and links requiring login are not guaranteed.
+Known limitation: links requiring an account/login depend on yt-dlp access on each client.
 
 Build 8 fixes:
 - mod list artwork is supplied as the required preview.jpg

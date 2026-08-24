@@ -14,7 +14,7 @@ New-Item -ItemType Directory -Force -Path $out | Out-Null
 & $cxx -std=c++17 -O2 -shared -static-libgcc -static-libstdc++ `
     (Join-Path $root 'StreamRadioBridge.cpp') `
     -o (Join-Path $out 'StreamRadioBridge.dll') `
-    '-Wl,--subsystem,windows' '-lkernel32' '-luser32'
+    '-Wl,--subsystem,windows' '-lkernel32' '-luser32' '-lws2_32'
 if ($LASTEXITCODE -ne 0) { throw "StreamRadioBridge.dll build failed: $LASTEXITCODE" }
 
 & $cxx -std=c++17 -O2 -static -static-libgcc -static-libstdc++ `

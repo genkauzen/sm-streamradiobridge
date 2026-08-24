@@ -14,8 +14,8 @@
       <Property key="FontName" value="SM_Button" />
       <Property key="TextAlign" value="Center" />
     </Widget>
-    <Widget type="Button" skin="ToggleButton" name="BridgeTabButton" position_real="0.31 0.105 0.25 0.055">
-      <Property key="Caption" value="BRIDGE" />
+    <Widget type="Button" skin="ToggleButton" name="SearchTabButton" position_real="0.31 0.105 0.34 0.055">
+      <Property key="Caption" value="ПОИСК YOUTUBE" />
       <Property key="FontName" value="SM_Button" />
       <Property key="TextAlign" value="Center" />
     </Widget>
@@ -78,35 +78,38 @@
       <Widget type="ScrollBar" skin="LargeHorizontalSliderBackground" name="SeekSlider" position_real="0.04 0.93 0.82 0.07" />
     </Widget>
 
-    <Widget type="Widget" skin="PanelEmpty" name="BridgePanel" position_real="0.04 0.18 0.82 0.60">
+    <Widget type="Widget" skin="PanelEmpty" name="SearchPanel" position_real="0.04 0.18 0.82 0.62">
       <Property key="Visible" value="false" />
-      <Widget type="TextBox" skin="TextBox" name="BridgeTitle" position_real="0.04 0.04 0.92 0.12">
-        <Property key="Caption" value="STREAMBRIDGE / СОЕДИНЕНИЕ" />
+      <Widget type="TextBox" skin="TextBox" name="SearchTitle" position_real="0.04 0.01 0.92 0.10">
+        <Property key="Caption" value="ПОИСК ВИДЕО YOUTUBE" />
         <Property key="FontName" value="SM_HeaderLarge_Medium" />
         <Property key="TextAlign" value="Center" />
       </Widget>
-      <Widget type="TextBox" skin="TextBox" name="BridgeDescription" position_real="0.08 0.20 0.84 0.14">
-        <Property key="Caption" value="Переподключение освобождает audio-каналы и запускает разрешение ссылок заново." />
-        <Property key="FontName" value="SM_Text" />
-        <Property key="TextAlign" value="Center VCenter" />
-        <Property key="TextColour" value="0.78 0.78 0.78" />
+      <Widget type="Widget" skin="SearchBarBackground" name="SearchBar" position_real="0.05 0.13 0.72 0.11">
+        <Widget type="EditBox" skin="EditBoxEmpty" name="SearchInput" position_real="0.025 0.08 0.95 0.84">
+          <Property key="Caption" value="Название видео или трека" />
+          <Property key="TextAlign" value="Left VCenter" />
+          <Property key="TextColour" value="0.99 0.99 0.99" />
+          <Property key="MultiLine" value="false" />
+          <Property key="FontName" value="SM_Text" />
+        </Widget>
       </Widget>
-      <Widget type="Button" skin="PrimaryButton" name="BridgeReconnectButton" position_real="0.08 0.42 0.38 0.16">
-        <Property key="Caption" value="ПЕРЕПОДКЛЮЧИТЬ" />
+      <Widget type="Button" skin="PrimaryButton" name="SearchButton" position_real="0.79 0.13 0.16 0.11">
+        <Property key="Caption" value="НАЙТИ" />
         <Property key="FontName" value="SM_Button" />
         <Property key="TextAlign" value="Center" />
       </Widget>
-      <Widget type="Button" skin="SecondaryButton" name="BridgeReloadButton" position_real="0.54 0.42 0.38 0.16">
-        <Property key="Caption" value="СБРОСИТЬ AUDIO" />
-        <Property key="FontName" value="SM_Button" />
-        <Property key="TextAlign" value="Center" />
-      </Widget>
-      <Widget type="TextBox" skin="TextBox" name="BridgeStatus" position_real="0.08 0.67 0.84 0.16">
-        <Property key="Caption" value="Проверка StreamRadioBridge..." />
-        <Property key="FontName" value="SM_Text" />
-        <Property key="TextAlign" value="Center VCenter" />
+      <Widget type="TextBox" skin="TextBox" name="SearchStatus" position_real="0.05 0.25 0.90 0.07">
+        <Property key="Caption" value="Введите название видео" />
+        <Property key="FontName" value="SM_TabSmall" />
+        <Property key="TextAlign" value="Left VCenter" />
         <Property key="TextColour" value="0.92 0.92 0.92" />
       </Widget>
+      <Widget type="Button" skin="SecondaryButton" name="SearchResult1" position_real="0.05 0.34 0.90 0.105"><Property key="Caption" value="" /><Property key="FontName" value="SM_Text" /><Property key="TextAlign" value="Left VCenter" /><Property key="Visible" value="false" /></Widget>
+      <Widget type="Button" skin="SecondaryButton" name="SearchResult2" position_real="0.05 0.455 0.90 0.105"><Property key="Caption" value="" /><Property key="FontName" value="SM_Text" /><Property key="TextAlign" value="Left VCenter" /><Property key="Visible" value="false" /></Widget>
+      <Widget type="Button" skin="SecondaryButton" name="SearchResult3" position_real="0.05 0.57 0.90 0.105"><Property key="Caption" value="" /><Property key="FontName" value="SM_Text" /><Property key="TextAlign" value="Left VCenter" /><Property key="Visible" value="false" /></Widget>
+      <Widget type="Button" skin="SecondaryButton" name="SearchResult4" position_real="0.05 0.685 0.90 0.105"><Property key="Caption" value="" /><Property key="FontName" value="SM_Text" /><Property key="TextAlign" value="Left VCenter" /><Property key="Visible" value="false" /></Widget>
+      <Widget type="Button" skin="SecondaryButton" name="SearchResult5" position_real="0.05 0.80 0.90 0.105"><Property key="Caption" value="" /><Property key="FontName" value="SM_Text" /><Property key="TextAlign" value="Left VCenter" /><Property key="Visible" value="false" /></Widget>
     </Widget>
 
     <Widget type="Widget" skin="PanelEmpty" name="TransportPanel" position_real="0.04 0.60 0.55 0.2">

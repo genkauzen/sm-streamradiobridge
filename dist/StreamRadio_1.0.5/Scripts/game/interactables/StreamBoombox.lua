@@ -102,7 +102,8 @@ function StreamBoombox:sv_payload()
         position = self.sv.position or 0,
         loop = self.sv.loop == true,
         shuffle = self.sv.shuffle == true,
-        audioReady = self.sv.audioReady == true
+        audioReady = self.sv.audioReady == true,
+        revision = self.sv.revision or 1
     }
 end
 
@@ -127,6 +128,11 @@ function StreamBoombox:sv_sync()
     self:sv_broadcastState()
 end
 
+function StreamBoombox:sv_changed()
+    self.sv.revision = (self.sv.revision or 0) + 1
+    self:sv_sync()
+end
+
 function StreamBoombox:sv_currentTrack()
     return self.sv.tracks and self.sv.tracks[self.sv.current or 1] or nil
 end
@@ -140,7 +146,9 @@ function StreamBoombox:sv_findTrack(url)
     return nil
 end
 
-function StreamBoombox:sv_add(url, playNow)
+function StreamBoombox:sv_add(value, playNow)
+    local label = type(value) == "table" and trim(value.label) or ""
+    local url = type(value) == "table" and value.url or value
     url = normalizeUrl(url)
     if not url then
         return false, "Нужна ссылка YouTube, TikTok или VK"
@@ -151,8 +159,11 @@ function StreamBoombox:sv_add(url, playNow)
         if #self.sv.tracks >= MAX_TRACKS then
             return false, "Очередь заполнена"
         end
-        table.insert(self.sv.tracks, { url = url, label = url })
+        if #label == 0 or #label > 180 then label = url end
+        table.insert(self.sv.tracks, { url = url, label = label })
         index = #self.sv.tracks
+    elseif label ~= "" and #label <= 180 then
+        self.sv.tracks[index].label = label
     end
 
     if playNow then
@@ -175,6 +186,7 @@ function StreamBoombox.server_onCreate(self)
     self.sv.position = self.sv.position or 0
     self.sv.loop = self.sv.loop == true
     self.sv.shuffle = self.sv.shuffle == true
+    self.sv.revision = self.sv.revision or 1
     -- The bridge is process-local. Wait for its first decoded buffer after a
     -- world load instead of advancing the shared clock during URL resolving.
     self.sv.audioReady = false
@@ -191,11 +203,13 @@ function StreamBoombox.server_onCreate(self)
                 end,
                 play = function()
                     self.sv.playing = true
-                    self:sv_sync()
+                    self.sv.audioReady = false
+                    self:sv_changed()
                 end,
                 stop = function()
                     self.sv.playing = false
-                    self:sv_sync()
+                    self.sv.audioReady = false
+                    self:sv_changed()
                 end,
                 next = function()
                     self:sv_next()
@@ -225,14 +239,15 @@ function StreamBoombox.server_onFixedUpdate(self, dt)
 
     -- Keep already-connected clients close to the authoritative server clock
     -- without resending the full URL queue every tick.
-    if self.sv.clockTimer >= 0.5 then
+    if self.sv.clockTimer >= 0.25 then
         self.sv.clockTimer = 0
         if self:sv_currentTrack() then
             self.network:sendToClients("cl_receiveClock", {
                 current = self.sv.current,
                 playing = self.sv.playing == true,
                 position = self.sv.position or 0,
-                loop = self.sv.loop == true
+                loop = self.sv.loop == true,
+                revision = self.sv.revision or 1
             })
         end
     end
@@ -256,7 +271,7 @@ function StreamBoombox:_sv_next()
     self.sv.position = 0
     self.sv.playing = true
     self.sv.audioReady = false
-    self:sv_sync()
+    self:sv_changed()
 end
 
 function StreamBoombox:_sv_previous()
@@ -273,7 +288,7 @@ function StreamBoombox:_sv_previous()
     end
     self.sv.playing = true
     self.sv.audioReady = false
-    self:sv_sync()
+    self:sv_changed()
 end
 
 function StreamBoombox.sv_requestState(self, _, player)
@@ -283,7 +298,7 @@ end
 function StreamBoombox.sv_addAndPlay(self, value)
     local ok, errorText = self:sv_add(value, true)
     if ok then
-        self:sv_sync()
+        self:sv_changed()
     else
         self.network:sendToClients("cl_showStatus", errorText)
     end
@@ -292,7 +307,7 @@ end
 function StreamBoombox.sv_queueTrack(self, value)
     local ok, errorText = self:sv_add(value, false)
     if ok then
-        self:sv_sync()
+        self:sv_changed()
     else
         self.network:sendToClients("cl_showStatus", errorText)
     end
@@ -302,7 +317,7 @@ function StreamBoombox.sv_toggle(self)
     if self:sv_currentTrack() then
         self.sv.playing = not self.sv.playing
         self.sv.audioReady = false
-        self:sv_sync()
+        self:sv_changed()
     end
 end
 
@@ -310,7 +325,7 @@ function StreamBoombox.sv_stop(self)
     self.sv.playing = false
     self.sv.position = 0
     self.sv.audioReady = false
-    self:sv_sync()
+    self:sv_changed()
 end
 
 function StreamBoombox.sv_seek(self, value)
@@ -319,7 +334,8 @@ function StreamBoombox.sv_seek(self, value)
         return
     end
     self.sv.position = math.max(0, value)
-    self:sv_sync()
+    self.sv.audioReady = false
+    self:sv_changed()
 end
 
 function StreamBoombox.sv_next(self)
@@ -345,7 +361,25 @@ function StreamBoombox.sv_removeCurrent(self)
         self.sv.position = 0
         self.sv.audioReady = false
     end
-    self:sv_sync()
+    self:sv_changed()
+end
+
+function StreamBoombox.sv_trackEnded(self, value)
+    if type(value) ~= "table" then return end
+    local track = self:sv_currentTrack()
+    if not self.sv.playing or not track
+        or tonumber(value.current) ~= self.sv.current
+        or tonumber(value.revision) ~= self.sv.revision
+        or value.url ~= track.url then
+        return
+    end
+    if self.sv.loop then
+        self.sv.position = 0
+        self.sv.audioReady = false
+        self:sv_changed()
+    else
+        self:_sv_next()
+    end
 end
 
 function StreamBoombox.sv_audioReady(self, value)
@@ -355,7 +389,8 @@ function StreamBoombox.sv_audioReady(self, value)
     local current = tonumber(value.current)
     local url = type(value.url) == "string" and value.url or nil
     local track = self:sv_currentTrack()
-    if not self.sv.playing or not track or current ~= self.sv.current or track.url ~= url then
+    if not self.sv.playing or not track or current ~= self.sv.current or track.url ~= url
+        or (value.revision ~= nil and tonumber(value.revision) ~= self.sv.revision) then
         return
     end
     if not self.sv.audioReady then
@@ -401,7 +436,13 @@ function StreamBoombox.client_onCreate(self)
         bridgeStatus = nil,
         audioReady = false,
         readyUrl = nil,
-        bridgePage = false,
+        revision = 1,
+        endedReportedRevision = nil,
+        page = "radio",
+        searchQuery = "",
+        searchResults = {},
+        searchStatus = "Введите название видео",
+        searchBusy = false,
         updatingSeek = false,
         statusText = nil,
         statusTimer = 0
@@ -501,6 +542,13 @@ function StreamBoombox:cl_bridgeTick()
         return
     end
 
+    if type(bridge.getVolume) == "function" then
+        local volumeOk, savedVolume = pcall(bridge.getVolume, bridge)
+        if volumeOk and tonumber(savedVolume) then
+            self.cl.volume = math.max(0, math.min(1, tonumber(savedVolume)))
+        end
+    end
+
     local track = self.cl.tracks[self.cl.current]
     local function vectorTable(value)
         if not value then
@@ -565,6 +613,7 @@ function StreamBoombox:cl_bridgeTick()
         url = track and track.url or nil,
         playing = self.cl.playing,
         position = self.cl.position,
+        revision = self.cl.revision,
         volume = self.cl.volume,
         loop = self.cl.loop,
         radioPosition = radioPosition,
@@ -585,7 +634,7 @@ function StreamBoombox:cl_bridgeTick()
         if type(result.status) == "string" and result.status ~= "" then
             self.cl.bridgeStatus = result.status
             local wasReady = self.cl.audioReady
-            self.cl.audioReady = result.status == "Играет audio-only"
+            self.cl.audioReady = result.ready == true
             if self.cl.audioReady and not wasReady and self.cl.readyUrl ~= payload.url then
                 -- Scrap Mechanic accepts one payload argument after the RPC
                 -- name. Sending current and URL separately aborts this fixed
@@ -593,7 +642,8 @@ function StreamBoombox:cl_bridgeTick()
                 -- exactly three seconds after playback began.
                 local ready = {
                     current = self.cl.current,
-                    url = payload.url
+                    url = payload.url,
+                    revision = self.cl.revision
                 }
                 local sent = pcall(function()
                     self.network:sendToServer("sv_audioReady", ready)
@@ -603,9 +653,17 @@ function StreamBoombox:cl_bridgeTick()
                 else
                     self.cl.bridgeStatus = "Ошибка синхронизации audioReady"
                 end
-            elseif not self.cl.audioReady and result.status ~= "Играет audio-only" then
+            elseif not self.cl.audioReady then
                 self.cl.readyUrl = nil
             end
+        end
+        if result.ended == true and self.cl.endedReportedRevision ~= self.cl.revision and payload.url then
+            self.cl.endedReportedRevision = self.cl.revision
+            self.network:sendToServer("sv_trackEnded", {
+                current = self.cl.current,
+                url = payload.url,
+                revision = self.cl.revision
+            })
         end
     end
 end
@@ -671,30 +729,37 @@ function StreamBoombox:cl_createGui()
     self.cl.gui:setButtonCallback("LoopButton", "cl_onLoop")
     self.cl.gui:setButtonCallback("RemoveButton", "cl_onRemove")
     self.cl.gui:setButtonCallback("RadioTabButton", "cl_onRadioTab")
-    self.cl.gui:setButtonCallback("BridgeTabButton", "cl_onBridgeTab")
-    self.cl.gui:setButtonCallback("BridgeReconnectButton", "cl_onBridgeReconnect")
-    self.cl.gui:setButtonCallback("BridgeReloadButton", "cl_onBridgeReload")
+    self.cl.gui:setButtonCallback("SearchTabButton", "cl_onSearchTab")
+    self.cl.gui:setTextChangedCallback("SearchInput", "cl_onSearchChanged")
+    self.cl.gui:setTextAcceptedCallback("SearchInput", "cl_onSearchAccepted")
+    self.cl.gui:setButtonCallback("SearchButton", "cl_onSearch")
+    self.cl.gui:setButtonCallback("SearchResult1", "cl_onSearchResult1")
+    self.cl.gui:setButtonCallback("SearchResult2", "cl_onSearchResult2")
+    self.cl.gui:setButtonCallback("SearchResult3", "cl_onSearchResult3")
+    self.cl.gui:setButtonCallback("SearchResult4", "cl_onSearchResult4")
+    self.cl.gui:setButtonCallback("SearchResult5", "cl_onSearchResult5")
     self.cl.gui:setButtonCallback("CloseButton", "cl_onClose")
     self.cl.gui:setOnCloseCallback("cl_onGuiClose")
-    self:cl_setPage(false)
+    self:cl_setPage("radio")
 end
 
-function StreamBoombox:cl_setPage(bridgePage)
+function StreamBoombox:cl_setPage(page)
     if not self.cl.gui then
         return
     end
-    self.cl.bridgePage = bridgePage == true
+    self.cl.page = page == "search" and "search" or "radio"
+    local searchPage = self.cl.page == "search"
     local radioWidgets = {
         "PreviewPanel", "InfoPanel", "TransportPanel", "VolumePanel", "Footer"
     }
     for _, name in ipairs(radioWidgets) do
         pcall(function()
-            self.cl.gui:setVisible(name, not self.cl.bridgePage)
+            self.cl.gui:setVisible(name, not searchPage)
         end)
     end
-    pcall(function() self.cl.gui:setVisible("BridgePanel", self.cl.bridgePage) end)
-    pcall(function() self.cl.gui:setButtonState("RadioTabButton", not self.cl.bridgePage) end)
-    pcall(function() self.cl.gui:setButtonState("BridgeTabButton", self.cl.bridgePage) end)
+    pcall(function() self.cl.gui:setVisible("SearchPanel", searchPage) end)
+    pcall(function() self.cl.gui:setButtonState("RadioTabButton", not searchPage) end)
+    pcall(function() self.cl.gui:setButtonState("SearchTabButton", searchPage) end)
 end
 
 function StreamBoombox:openGui()
@@ -702,8 +767,9 @@ function StreamBoombox:openGui()
         self:cl_createGui()
     end
     self.cl.editing = false
-    self:cl_setPage(self.cl.bridgePage)
+    self:cl_setPage(self.cl.page)
     self.cl.gui:setText("UrlInput", self.cl.urlInput or "")
+    self.cl.gui:setText("SearchInput", self.cl.searchQuery or "")
     self.cl.gui:open()
     self:cl_refreshGui()
 end
@@ -714,16 +780,13 @@ function StreamBoombox:cl_refreshGui()
     end
 
     local track = self.cl.tracks[self.cl.current]
-    if self.cl.bridgePage then
-        local bridge = self:cl_getBridge()
-        local bridgeReady = bridge and type(bridge.update) == "function"
-        self.cl.gui:setText("BridgeStatus", bridgeReady and
-            (self.cl.bridgeStatus or "Bridge подключён") or "Bridge не найден")
+    if self.cl.page == "search" then
+        self:cl_refreshSearch()
         return
     end
     local count = #self.cl.tracks
     if track then
-        self.cl.gui:setText("TrackTitle", "Трек " .. tostring(self.cl.current) .. "/" .. tostring(count))
+        self.cl.gui:setText("TrackTitle", tostring(track.label or ("Трек " .. tostring(self.cl.current) .. "/" .. tostring(count))))
         if not self.cl.editing then
             self.cl.urlInput = track.url
             self.cl.gui:setText("UrlInput", self.cl.urlInput)
@@ -783,6 +846,11 @@ function StreamBoombox.cl_receiveState(self, state)
     self.cl.position = state.position or 0
     self.cl.loop = state.loop == true
     self.cl.shuffle = state.shuffle == true
+    local oldRevision = self.cl.revision
+    self.cl.revision = tonumber(state.revision) or self.cl.revision or 1
+    if oldRevision ~= self.cl.revision then
+        self.cl.endedReportedRevision = nil
+    end
     local track = self.cl.tracks[self.cl.current]
     local url = track and track.url or nil
     if self.cl.durationUrl ~= url then
@@ -802,6 +870,7 @@ end
 function StreamBoombox.cl_receiveClock(self, state)
     if type(state) ~= "table"
         or state.current ~= self.cl.current
+        or (state.revision ~= nil and tonumber(state.revision) ~= self.cl.revision)
         or not self.cl.tracks[self.cl.current] then
         return
     end
@@ -899,38 +968,96 @@ function StreamBoombox.cl_onRemove(self)
 end
 
 function StreamBoombox.cl_onRadioTab(self)
-    self:cl_setPage(false)
+    self:cl_setPage("radio")
     self:cl_refreshGui()
 end
 
-function StreamBoombox.cl_onBridgeTab(self)
-    self:cl_setPage(true)
+function StreamBoombox.cl_onSearchTab(self)
+    self:cl_setPage("search")
     self:cl_refreshGui()
 end
 
-function StreamBoombox.cl_onBridgeReconnect(self)
-    local bridge = self:cl_getBridge()
-    if bridge and type(bridge.reset) == "function" then
-        pcall(bridge.reset, bridge)
-        self.cl.audioReady = false
-        self.cl.readyUrl = nil
-        self.cl.bridgeStatus = "Переподключение audio..."
-    else
-        self.cl.bridgeStatus = "Bridge не найден; запустите StreamRadioLauncher"
+function StreamBoombox.cl_onSearchChanged(self, editBoxName, text)
+    if type(text) ~= "string" and type(editBoxName) == "string" then text = editBoxName end
+    if type(text) == "string" then self.cl.searchQuery = text end
+end
+
+function StreamBoombox.cl_onSearchAccepted(self, editBoxName, text)
+    self:cl_onSearchChanged(editBoxName, text)
+    self:cl_onSearch()
+end
+
+function StreamBoombox.cl_onSearch(self)
+    if self.cl.gui then
+        local ok, text = pcall(function() return self.cl.gui:getText("SearchInput") end)
+        if ok and type(text) == "string" then self.cl.searchQuery = text end
     end
-    self:cl_refreshGui()
+    self.cl.searchQuery = trim(self.cl.searchQuery)
+    if self.cl.searchQuery == "" then
+        self.cl.searchStatus = "Введите название видео"
+        return
+    end
+    local bridge = self:cl_getBridge()
+    if bridge and type(bridge.search) == "function" then
+        self.cl.searchBusy = true
+        self.cl.searchStatus = "Поиск YouTube..."
+        pcall(bridge.search, bridge, self.cl.searchQuery)
+    else
+        self.cl.searchStatus = "Поиск ещё не готов"
+    end
 end
 
-function StreamBoombox.cl_onBridgeReload(self)
-    -- A DLL cannot safely unload itself from the game.  The native reset is
-    -- the safe equivalent: all channels are released and URLs are resolved
-    -- again without restarting the world.
-    self:cl_onBridgeReconnect()
+function StreamBoombox:cl_refreshSearch()
+    local bridge = self:cl_getBridge()
+    if bridge and type(bridge.search) == "function" and self.cl.searchQuery ~= "" then
+        local ok, result = pcall(bridge.search, bridge, self.cl.searchQuery)
+        if ok and type(result) == "table" then
+            self.cl.searchBusy = result.busy == true
+            self.cl.searchStatus = result.status or self.cl.searchStatus
+            self.cl.searchResults = {}
+            for index = 1, math.min(5, tonumber(result.count) or 0) do
+                local url = result["url" .. tostring(index)]
+                if type(url) == "string" and url ~= "" then
+                    self.cl.searchResults[index] = {
+                        url = url,
+                        title = result["title" .. tostring(index)] or url,
+                        thumbnail = result["thumbnail" .. tostring(index)]
+                    }
+                end
+            end
+        end
+    end
+    self.cl.gui:setText("SearchStatus", self.cl.searchStatus or "")
+    for index = 1, 5 do
+        local item = self.cl.searchResults[index]
+        local caption = item and (tostring(index) .. ". " .. tostring(item.title)) or ""
+        pcall(function() self.cl.gui:setText("SearchResult" .. tostring(index), caption) end)
+        pcall(function() self.cl.gui:setVisible("SearchResult" .. tostring(index), item ~= nil) end)
+    end
 end
+
+function StreamBoombox:cl_playSearchResult(index)
+    local item = self.cl.searchResults[index]
+    if not item then return end
+    self.cl.urlInput = item.url
+    self.cl.editing = false
+    self.network:sendToServer("sv_addAndPlay", { url = item.url, label = item.title })
+    self:cl_setPage("radio")
+end
+
+function StreamBoombox.cl_onSearchResult1(self) self:cl_playSearchResult(1) end
+function StreamBoombox.cl_onSearchResult2(self) self:cl_playSearchResult(2) end
+function StreamBoombox.cl_onSearchResult3(self) self:cl_playSearchResult(3) end
+function StreamBoombox.cl_onSearchResult4(self) self:cl_playSearchResult(4) end
+function StreamBoombox.cl_onSearchResult5(self) self:cl_playSearchResult(5) end
 
 function StreamBoombox.cl_onVolumeSliderMoved(self, value)
     value = tonumber(value) or 100
     self.cl.volume = math.max(0, math.min(1, value / 100))
+    local bridge = self:cl_getBridge()
+    if bridge and type(bridge.setVolume) == "function" then
+        pcall(bridge.setVolume, bridge, self.cl.volume)
+    end
     self:cl_bridgeTick()
 end
 

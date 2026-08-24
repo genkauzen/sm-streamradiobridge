@@ -98,6 +98,18 @@ function Write-Log([string]$message, [switch]$IsError) {
     if ($IsError) { Write-Error $message -ErrorAction Continue } else { Write-Host $line }
 }
 
+function Update-MediaResolver {
+    $ytDlp = Join-Path $BridgeDir 'yt-dlp.exe'
+    if (-not (Test-Path -LiteralPath $ytDlp)) { return }
+    Write-Log 'Проверка движка ссылок YouTube / TikTok / VK...'
+    $output = & $ytDlp -U --no-warnings 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-Log (($output | Select-Object -Last 1) -join '')
+    } else {
+        Write-Log 'Обновление движка ссылок пропущено; используется установленная версия.'
+    }
+}
+
 function Install-Mod([object]$config) {
     $profile = Get-SelectedProfile $config
     if (-not $profile) { throw 'Профиль Scrap Mechanic не найден. Запустите игру один раз и повторите проверку.' }
@@ -160,7 +172,7 @@ function Update-FromGitHub([object]$config, [switch]$Silent) {
             $candidate = [pscustomobject]@{ FullName = $extract }
         }
         $payload = if (Test-Path (Join-Path $candidate.FullName 'StreamRadio_1.0.5')) { $candidate.FullName } else { $extract }
-        foreach ($name in @('StreamRadio_1.0.5','Native','Install_StreamRadio.bat','Start_StreamRadioBridge.bat','VERSION.txt','manifest.json')) {
+        foreach ($name in @('StreamRadio_1.0.5','Native','Install_StreamRadio.bat','Start_StreamRadioBridge.bat','StreamRadioLauncher.bat','StreamRadioLauncher.ps1','README_INSTALL_RU.md','VERSION.txt','manifest.json')) {
             $from = Join-Path $payload $name
             if (Test-Path $from) { Copy-Item -LiteralPath $from -Destination $Root -Recurse -Force }
         }
@@ -334,7 +346,10 @@ $exitButton.Add_Click({ $form.Close() })
 $startButton.Add_Click({
     try {
         Read-UiConfig
-        if ($config.AutoUpdate) { try { [void](Update-FromGitHub $config -Silent) } catch { Write-Log "Автообновление пропущено: $($_.Exception.Message)" } }
+        if ($config.AutoUpdate) {
+            try { [void](Update-FromGitHub $config -Silent) } catch { Write-Log "Автообновление пропущено: $($_.Exception.Message)" }
+            try { Update-MediaResolver } catch { Write-Log "Проверка движка ссылок пропущена: $($_.Exception.Message)" }
+        }
         if ($config.AutoInstall) { Install-Mod $config }
         [void](Refresh-Checks)
         if ($config.StartBridge) { Start-GameAndBridge } else { Write-Log 'Запуск bridge отключён в настройках.' }
