@@ -1,9 +1,9 @@
 # Публикация `genkauzen/sm-streamradiobridge`
 
-В этой папке уже подготовлены `manifest.json`, единый `StreamRadioLauncher` и
-workflow для релизов. Сейчас push не выполняется автоматически: на компьютере
-нет GitHub-токена/SSH-ключа, а удалённый репозиторий должен быть создан или
-должен быть доступен владельцу `genkauzen`.
+В этой папке подготовлены `manifest.json`, единый `StreamRadioLauncher` и
+workflow для релизов. Репозиторий опубликован по адресу:
+
+`https://github.com/genkauzen/sm-streamradiobridge`
 
 После входа в GitHub выполните в PowerShell из корня проекта:
 
@@ -16,10 +16,10 @@ git remote add origin https://github.com/genkauzen/sm-streamradiobridge.git
 git push -u origin main
 ```
 
-Для автообновления лаунчер ожидает GitHub Release с ZIP-файлом. Создайте тег
-`v1.0.5-build4` — workflow `.github/workflows/release.yml` соберёт
-`StreamRadio_1.0.5.zip` из `dist` и опубликует его. После публикации ссылка из
-`manifest.json` начинает работать автоматически.
+Для автообновления лаунчер использует GitHub Release с ZIP-файлом. Тег
+`v1.0.5-build4` уже опубликован, а workflow `.github/workflows/release.yml`
+собрал `StreamRadio_1.0.5.zip` из `dist`. Ссылка из `manifest.json` работает
+автоматически.
 
 Если репозиторий приватный, публичный лаунчер не сможет получить release без
 токена; в таком случае оставьте `AutoUpdate` выключенным или добавьте авторизованный
