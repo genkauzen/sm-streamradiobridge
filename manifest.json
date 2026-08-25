@@ -1,7 +1,7 @@
 {
-  "version": "1.0.5-build9",
+  "version": "1.0.5-build10",
   "downloadUrl": "https://github.com/genkauzen/sm-streamradiobridge/releases/latest/download/StreamRadio_1.0.5.zip",
   "sha256": "",
   "repository": "https://github.com/genkauzen/sm-streamradiobridge",
-  "notes": "Progressive audio streaming for all supported video links, tighter multiplayer clock sync, persistent per-user volume, native YouTube search, working thumbnails, and stability fixes."
+  "notes": "Restored Scrap Mechanic-compatible mod metadata version so the mod appears in the Mods list; keeps build9 streaming, sync, search and preview changes."
 }

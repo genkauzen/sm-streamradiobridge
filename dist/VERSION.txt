@@ -1,5 +1,5 @@
-version=1.0.5-build9
-Stream Radio Core 1.0.5 bridge build 9
+version=1.0.5-build10
+Stream Radio Core 1.0.5 bridge build 10
 Target game: Scrap Mechanic 1.0.5 (build 876)
 Built: 2026-08-24
 
